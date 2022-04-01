@@ -6,8 +6,10 @@
 dotnet ef migrations add <MigrationName> -s Multitenant.Api -p Infrastructure
 ```
 
-- Update databases for all tenant
-This command will update tenants databases once
+- Update databases
+
+>This command will update all tenants databases once
+
 ```console
 dotnet ef database update -s Multitenant.Api -p Infrastructure
 ```
