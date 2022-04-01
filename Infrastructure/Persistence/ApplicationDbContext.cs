@@ -34,11 +34,11 @@ namespace Infrastructure.Persistence
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var tenantConnectionString = _tenantService.GetConnectionString();
+            var tenantConnectionString = _tenantService?.GetConnectionString();
             if (!string.IsNullOrEmpty(tenantConnectionString))
             {
                 var provider = _tenantService.GetDatabaseProvider();
-                if (provider.ToLower() == "psql")
+                if (provider.ToLower().Equals("pgsql"))
                 {
                     optionsBuilder.UseNpgsql(_tenantService.GetConnectionString());
                 }
