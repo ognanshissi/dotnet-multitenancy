@@ -1,7 +1,3 @@
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Core.Contracts;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
