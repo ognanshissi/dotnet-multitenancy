@@ -1,19 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Core.Entities;
 using Core.Interfaces;
-using Infrastructure.Persistence;
+using Core.Settings;
+using Infrastructure.Extensions;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace Multitenant.Api
@@ -31,13 +26,18 @@ namespace Multitenant.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<ApplicationDbContext>();
+            services.AddAndMigrateTenantDatabases(Configuration);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Multitenant.Api", Version = "v1" });
             });
 
-            services.AddSingleton<ITenantService, TenantService>();
+            // Configure settings
+            IConfiguration tenantSettings = Configuration.GetSection("TenantSettings");
+            services.Configure<TenantSettings>(tenantSettings);
+            
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<IProductService, ProductService>();
         }
 
