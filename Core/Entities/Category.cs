@@ -1,6 +1,8 @@
+using Core.Contracts;
+
 namespace Core.Entities
 {
-    public class Category: BaseEntity
+    public class Category: BaseEntity, IMustHaveTenant
     {
         public string Name { get; private set; }
 
@@ -14,6 +16,7 @@ namespace Core.Entities
             Name = name;
         }
 
-        
+
+        public string TenantId { get; set; }
     }
 }

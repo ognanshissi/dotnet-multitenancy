@@ -1,3 +1,7 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Core.Contracts;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +38,29 @@ namespace Infrastructure.Persistence
                     optionsBuilder.UseNpgsql(_tenantService.GetConnectionString());
                 }
             }
+        }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Product>().HasQueryFilter(a => a.TenantId == TenantId);
+            modelBuilder.Entity<Category>().HasQueryFilter(a => a.TenantId == TenantId);
+        }
+        
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            foreach (var entry in ChangeTracker.Entries<IMustHaveTenant>().ToList())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                    case EntityState.Modified:
+                        entry.Entity.TenantId = TenantId;
+                        break;
+                }
+            }
+            var result = await base.SaveChangesAsync(cancellationToken);
+            return result;
         }
     }
 }
